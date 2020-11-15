@@ -14,7 +14,14 @@ class App extends React.Component {
         trial: 10,
         names: "aさん,bさん,cさん,dさん,eさん,fさん,gさん,hさん,iさん"
       },
-      result: [[]]
+      message:{
+        participant: "",
+        groupNumver: "",
+        repeatCnt: "",
+        trial: "",
+        names: ""
+      },
+      result: []
     }
 
     this.handleChange = this.handleChange.bind(this)
@@ -22,14 +29,48 @@ class App extends React.Component {
   }
 
   handleChange(e) {
+    const id = e.target.id
+    const value = e.target.value
     const newInfoState = Object.assign({}, this.state.info)
-    newInfoState[e.target.id] = e.target.value
+    newInfoState[id] = value
+
+    const newMessageState = Object.assign({}, this.state.message)
+    newMessageState[id] = this.validator(id, value)
+
     this.setState(
       {
         info: newInfoState
       }
     )
+    this.setState(
+      {
+        message: newMessageState
+      }
+    )
   }
+
+  validator(id, value) {
+    switch(id) {
+      case 'participant':
+      case 'groupNumver':
+      case 'repeatCnt':
+      case 'trial':
+        return this.presenceValidation(value)
+      case 'names':
+        return this.namesValidation(value)
+    }
+  }
+
+  presenceValidation(value){
+    if (!value) return '入力してください'
+  }
+
+  namesValidation(value){
+    if (value === '') return
+    const numOfComma = (value.match(/,/g) || []).length;
+    if (!(this.state.info.participant == numOfComma + 1)) return '参加者のお名前を","区切り、もしくは空欄で入力してください"'
+  }
+
 
   handleSubmit(e){
     e.preventDefault()
@@ -58,6 +99,7 @@ class App extends React.Component {
         <div className="container mt-3">
           <Form
             info={this.state.info}
+            message={this.state.message}
             handleChange = {this.handleChange}
             handleSubmit = {this.handleSubmit}
           />
